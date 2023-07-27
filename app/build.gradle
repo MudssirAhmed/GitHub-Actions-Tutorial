@@ -6,7 +6,7 @@ plugins {
 
 sonarqube {
     properties {
-        property "sonar.organization", "GituHub Actions Tutorial"
+        property "sonar.organization", "github-action-tutorial"
         property "sonar.projectName", "GitHub-Actions-Tutorial"
         property "sonar.projectKey", "MudssirAhmed_GitHub-Actions-Tutorial"
         property "sonar.host.url", "https://sonarcloud.io/"
