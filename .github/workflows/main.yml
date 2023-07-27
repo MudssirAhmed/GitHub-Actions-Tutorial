@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Lint
-        echo: Lint Done
+        run: Lint Done
 
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Unit-Test
-        echo: Unit-Test Done
+        run: Unit-Test Done
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
 #        with:
