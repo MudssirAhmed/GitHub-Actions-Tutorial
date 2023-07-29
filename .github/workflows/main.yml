@@ -9,105 +9,106 @@ on:
   workflow_dispatch:
   
 jobs:
-#  lint:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup JDK
-#        uses: actions/setup-java@v2
-#        with:
-#          distribution: 'zulu'
-#          java-version: '17'
-#
-#      - name: Grant execute permission for Gradle wrapper
-#        run: chmod +x gradlew
-#
-#      - name: Run Lint
-#        run: ./gradlew lintDebug
-#
-#      - name: Upload html test report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: lint.html
-#          path: app/build/reports/lint-results-debug.html
-#
-#  unit-test:
-#    needs: [lint]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup JDK
-#        uses: actions/setup-java@v2
-#        with:
-#          distribution: 'zulu'
-#          java-version: '17'
-#
-#      - name: Grant execute permission for Gradle wrapper
-#        run: chmod +x gradlew
-#
-#      - name: Run tests
-#        run: ./gradlew test
-#
-#      - name: Upload test report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: unit_test_report
-#          path: app/build/reports/tests/testDebugUnitTest
-#
-#  static-code-analysis:
-#    needs: [unit-test]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup JDK
-#        uses: actions/setup-java@v2
-#        with:
-#          distribution: 'zulu'
-#          java-version: '17'
-#
-#      - name: Grant execute permission for Gradle wrapper
-#        run: chmod +x gradlew
-#
-#      - name: Build and analyze
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-#        run: ./gradlew build sonar --info
-#
-#  build-debug-apk:
-#    needs: [static-code-analysis]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup JDK
-#        uses: actions/setup-java@v2
-#        with:
-#          distribution: 'zulu'
-#          java-version: '17'
-#
-#      - name: Grant execute permission for Gradle wrapper
-#        run: chmod +x gradlew
-#
-#      - name: Build debug APK
-#        run: ./gradlew assembleDebug --stacktrace
-#
-#      - name: Upload APK
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: app-debug.apk
-#          path: app/build/outputs/apk/debug/app-debug.apk
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
 
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Run Lint
+        run: ./gradlew lintDebug
+
+      - name: Upload html test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: lint.html
+          path: app/build/reports/lint-results-debug.html
+
+  unit-test:
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit_test_report
+          path: app/build/reports/tests/testDebugUnitTest
+
+  static-code-analysis:
+    needs: [unit-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew build sonar --info
+
+  build-debug-apk:
+    needs: [static-code-analysis]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+# ReferenceURL: https://dev.to/supersuman/build-and-sign-android-apps-using-github-actions-54j
   build-signed-apk:
-#    needs: [build-debug-apk]
+    needs: [build-debug-apk]
     name: Build and Sign Debug APK
     runs-on: ubuntu-latest
 
