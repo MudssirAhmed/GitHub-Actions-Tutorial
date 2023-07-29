@@ -71,7 +71,7 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Unit-Test
+      - name: static-code-analysis
         run: echo static-code-analysis
 
 #      - name: Setup JDK
@@ -90,27 +90,72 @@ jobs:
 #          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 #        run: ./gradlew build sonar --info
 
-  package:
+  build-debug-apk:
     needs: [static-code-analysis]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Setup JDK
+      - name: build-debug-apk
+        run: echo build-debug-apk
+
+#      - name: Setup JDK
+#        uses: actions/setup-java@v2
+#        with:
+#          distribution: 'zulu'
+#          java-version: '17'
+#
+#      - name: Grant execute permission for Gradle wrapper
+#        run: chmod +x gradlew
+#
+#      - name: Build debug APK
+#        run: ./gradlew assembleDebug --stacktrace
+#
+#      - name: Upload APK
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: app-debug.apk
+#          path: app/build/outputs/apk/debug/app-debug.apk
+
+  build-signed-apk:
+    needs: [build-debug-apk]
+    name: Build and Sign Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: 17
 
-      - name: Grant execute permission for Gradle wrapper
+      - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+#      - name: Build Debug APK
+#        run: ./gradlew assembleDebug
+#
+#      - name: Sign APK
+#        run: |
+#          echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
+#          ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+#                                   -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+#                                   -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+#                                   -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+      - name: Build Debug APK
+        run: |
+          echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
+          ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+                                    -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+                                    -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+                                    -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload APK
+      - name: Archive signed APK
         uses: actions/upload-artifact@v2
         with:
-          name: app-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
