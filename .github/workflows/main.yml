@@ -138,10 +138,10 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Make artifact
+      - name: Upload Signed Apk File
         uses: actions/upload-artifact@v2
         with:
-          name: app-release-signed
+          name: app-release
           path: ${{steps.sign_apk.outputs.signedReleaseFile}}
 
       - name: Build AAB
@@ -157,8 +157,8 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Make artifact
+      - name: Upload Signed Aab Bundle
         uses: actions/upload-artifact@v2
         with:
-          name: app-release-signed
+          name: app-release
           path: ${{steps.sign_aab.outputs.signedReleaseFile}}
