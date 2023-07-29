@@ -136,20 +136,19 @@ jobs:
 
       # Build and sign APK ("-x test" argument is used to skip tests)
       - name: Build APK
-        run: ./gradlew :app:assembleRelease -x test
+        run: ./gradlew :app:assembleRelease
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       # Show information about the APK's signing certificates
-      # D:\Development\Techathon\GithubActionsTutorial\app\release
       - name: Verify Signature
-        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/release/app-release${{ github.event.inputs.version }}.apk
+        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/GithubActions_Tutorial_${{ github.event.inputs.version }}.apk
 
       # Save the APK after the Build job is complete to publish it as a Github release in the next job
       - name: Upload APK
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-release.apk
-          path: app/release/app-release${{ github.event.inputs.version }}.apk
+          name: GithubActions_Tutorial.apk
+          path: app/build/outputs/apk/release/GithubActions_Tutorial_${{ github.event.inputs.version }}.apk
