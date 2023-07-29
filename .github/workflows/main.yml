@@ -9,15 +9,12 @@ on:
   workflow_dispatch:
   
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: Lint
-        run: echo Lint Done
-
+#  lint:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the code
+#        uses: actions/checkout@v2
+#
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
 #        with:
@@ -35,17 +32,14 @@ jobs:
 #        with:
 #          name: lint.html
 #          path: app/build/reports/lint-results-debug.html
-
-  unit-test:
-    needs: [lint]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: Unit-Test
-        run: echo Unit-Test Done
-
+#
+#  unit-test:
+#    needs: [lint]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the code
+#        uses: actions/checkout@v2
+#
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
 #        with:
@@ -63,23 +57,20 @@ jobs:
 #        with:
 #          name: unit_test_report
 #          path: app/build/reports/tests/testDebugUnitTest
-
-  static-code-analysis:
-    needs: [unit-test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: static-code-analysis
-        run: echo static-code-analysis
-
+#
+#  static-code-analysis:
+#    needs: [unit-test]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the code
+#        uses: actions/checkout@v2
+#
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
 #        with:
 #          distribution: 'zulu'
 #          java-version: '17'
-#d
+#
 #      - name: Grant execute permission for Gradle wrapper
 #        run: chmod +x gradlew
 #
@@ -89,17 +80,14 @@ jobs:
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 #        run: ./gradlew build sonar --info
-
-  build-debug-apk:
-    needs: [static-code-analysis]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: build-debug-apk
-        run: echo build-debug-apk
-
+#
+#  build-debug-apk:
+#    needs: [static-code-analysis]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the code
+#        uses: actions/checkout@v2
+#
 #      - name: Setup JDK
 #        uses: actions/setup-java@v2
 #        with:
@@ -119,7 +107,7 @@ jobs:
 #          path: app/build/outputs/apk/debug/app-debug.apk
 
   build-signed-apk:
-    needs: [build-debug-apk]
+#    needs: [build-debug-apk]
     name: Build and Sign Debug APK
     runs-on: ubuntu-latest
 
@@ -135,25 +123,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-#      - name: Build Debug APK
-#        run: ./gradlew assembleDebug
-#
-#      - name: Sign APK
-#        run: |
-#         echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
-#         ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
-#                                  -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-#                                  -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-#                                  -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-#       - name: Build Debug APK
-#         run: |
-#           echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
-#           ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
-#                                     -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-#                                     -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-#                                     -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-
 
       # Here we need to decode keystore.jks from base64 string and place it
       # in the folder specified in the release signing configuration
@@ -175,11 +144,11 @@ jobs:
 
       # Show information about the APK's signing certificates
       - name: Verify Signature
-        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/app-release_${{ github.event.inputs.version }}.apk
+        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/app-release${{ github.event.inputs.version }}.apk
 
       # Save the APK after the Build job is complete to publish it as a Github release in the next job
       - name: Upload APK
         uses: actions/upload-artifact@v3.1.2
         with:
           name: app-release.apk
-          path: app/build/outputs/apk/release/app-release_${{ github.event.inputs.version }}.apk
+          path: app/build/outputs/apk/release/app-release${{ github.event.inputs.version }}.apk
