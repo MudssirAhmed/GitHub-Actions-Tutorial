@@ -144,31 +144,21 @@ jobs:
           name: app-release-signed
           path: ${{steps.sign_apk.outputs.signedReleaseFile}}
 
-      # Here we need to decode keystore.jks from base64 string and place it
-      # in the folder specified in the release signing configuration
-#      - name: Decode Keystore
-#        id: decode_keystore
-#        uses: timheuer/base64-to-file@v1.2
-#        with:
-#          fileName: 'android_keystore.jks'
-#          fileDir: '/home/runner/work/GitHub-Actions-Tutorial/GitHub-Actions-Tutorial/app/keystore/'
-#          encodedString: ${{ secrets.KEYSTORE_FILE }}
-#
-#      # Build and sign APK ("-x test" argument is used to skip tests)
-#      - name: Build APK
-#        run: ./gradlew :app:assembleRelease
-#        env:
-#          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-#          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-#          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-#
-#      # Show information about the APK's signing certificates
-#      - name: Verify Signature
-#        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
-#
-#      # Save the APK after the Build job is complete to publish it as a Github release in the next job
-#      - name: Upload APK
-#        uses: actions/upload-artifact@v3.1.2
-#        with:
-#          name: GithubActions_Tutorial.apk
-#          path: app/build/outputs/apk/release/app-release.apk
+      - name: Build AAB
+        run: bash ./gradlew bundleRelease
+
+      - name: Sign AAB
+        id: sign_aab
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_FILE }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Make artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release-signed
+          path: ${{steps.sign_aab.outputs.signedReleaseFile}}
