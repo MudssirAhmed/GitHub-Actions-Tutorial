@@ -136,23 +136,23 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-#      - name: Build Debug APK
-#        run: ./gradlew assembleDebug
-#
-#      - name: Sign APK
-#        run: |
-#          echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
-#          ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
-#                                   -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-#                                   -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-#                                   -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
       - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Sign APK
         run: |
-          echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
-          ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
-                                    -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-                                    -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-                                    -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+         echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
+         ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+                                  -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+                                  -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+                                  -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+#       - name: Build Debug APK
+#         run: |
+#           echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
+#           ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+#                                     -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+#                                     -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+#                                     -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
       - name: Archive signed APK
         uses: actions/upload-artifact@v2
