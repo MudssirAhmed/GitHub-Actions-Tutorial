@@ -136,16 +136,16 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
-
-      - name: Sign APK
-        run: |
-         echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
-         ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
-                                  -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-                                  -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-                                  -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+#      - name: Build Debug APK
+#        run: ./gradlew assembleDebug
+#
+#      - name: Sign APK
+#        run: |
+#         echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
+#         ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+#                                  -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+#                                  -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+#                                  -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 #       - name: Build Debug APK
 #         run: |
 #           echo ${{ secrets.KEYSTORE_FILE }} | base64 -d > keystore.jks
@@ -154,8 +154,32 @@ jobs:
 #                                     -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
 #                                     -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      - name: Archive signed APK
-        uses: actions/upload-artifact@v2
+
+      # Here we need to decode keystore.jks from base64 string and place it
+      # in the folder specified in the release signing configuration
+      - name: Decode Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1.2
         with:
-          name: app-release
-          path: app/build/outputs/apk/release/app-release.apk
+          fileName: 'android_keystore.jks'
+          fileDir: '/home/runner/work/GitHub-Actions-Tutorial/GitHub-Actions-Tutorial/app/keystore/'
+          encodedString: ${{ secrets.KEYSTORE_FILE }}
+
+      # Build and sign APK ("-x test" argument is used to skip tests)
+      - name: Build APK
+        run: ./gradlew :app:assembleRelease -x test
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # Show information about the APK's signing certificates
+      - name: Verify Signature
+        run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/GithubActions Tutorial_${{ github.event.inputs.version }}.apk
+
+      # Save the APK after the Build job is complete to publish it as a Github release in the next job
+      - name: Upload APK
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release_${{ github.event.inputs.version }}.apk
